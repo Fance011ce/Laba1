@@ -1,0 +1,144 @@
+using System;
+using System.ComponentModel.Design;
+using System.Data;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string filePath = "data.txt"; // Укажите путь к вашему файлу
+
+        try
+        {
+            using (StreamReader sr = new StreamReader(filePath))
+            {
+                // Читаем первую строку для получения размеров матрицы
+                string firstLine = sr.ReadLine();
+                string[] sizeParts = firstLine.Split(' ');
+
+                // Парсим размеры
+                int rows = int.Parse(sizeParts[0]);
+                int columns = int.Parse(sizeParts[1]);
+
+                string secondLine = sr.ReadLine();
+                int variable = int.Parse(secondLine);
+
+                
+                int[,] matrix = new int[rows, columns];
+
+                // Читаем данные матрицы
+                for (int i = 0; i < rows; i++) { 
+                    string line = sr.ReadLine();
+                    string[] values = line.Split(' ');
+                    for (int j = 0; j < columns; j++){
+                        matrix[i, j] = int.Parse(values[j]);
+                    }
+                }
+
+                Console.WriteLine($"Размерность: {variable}");
+
+
+                // Выводим размеры и матрицу
+                Console.WriteLine($"Rows: {rows}, Columns: {columns}");
+                Console.WriteLine("Matrix:");
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < columns; j++)
+                    {
+                        Console.Write(matrix[i, j] + " ");
+
+
+                    }
+                    Console.WriteLine();
+                }
+
+
+
+                string[] vectorValues = sr.ReadLine().Split(' ');
+                int[] vector = new int[vectorValues.Length];
+                for (int i = 0; i < vectorValues.Length; i++)
+                {
+                    vector[i] = int.Parse(vectorValues[i]);
+                }
+                Console.WriteLine("Вектор:");
+                foreach (int element in vector)
+                {
+                    Console.Write(element + " ");
+                }
+                Console.WriteLine();
+
+
+
+
+                //проверка на симметричность
+                bool isSymmetric = true;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < i; j++) // Проверяем только элементы ниже главной диагонали
+                    {
+                        if (matrix[i, j] != matrix[j, i])
+                        {
+                            isSymmetric = false;
+                            break;
+                        }
+                    }
+                    if (!isSymmetric)
+                    {
+                        break;
+                    }
+                }
+                // Выводим результат проверки
+                if (isSymmetric)
+                {
+                    Console.WriteLine("Матрица симметрична.");
+                }
+                else
+                {
+                    Console.WriteLine("Матрица не симметрична.");
+                }
+
+
+
+
+
+                //умножаем матрицу на вектор
+                double[] resultVector = new double[rows];
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < columns; j++)
+                    {
+                        resultVector[i] += matrix[i, j] * vector[j];
+                    }
+                }
+
+                // Вывод результата
+                Console.WriteLine("Результат умножения матрицы на вектор:");
+                foreach (double value in resultVector)
+                {
+                    Console.WriteLine(value);
+                }
+
+                double sum = 0;
+
+                for (int i = 0; i < resultVector.Length; i++)
+                {
+                    resultVector[i] *= variable;
+                    sum += resultVector[i];
+                }
+                double result = Math.Sqrt(sum);
+                Console.WriteLine("Итоговый результат");
+                Console.WriteLine(result);
+
+
+
+
+
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Не удалось прочитать файл: {e.Message}");
+        }
+    }
+}
