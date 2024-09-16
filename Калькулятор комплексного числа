@@ -1,0 +1,83 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+            Console.WriteLine("Введите первое число первого комплексного числа");
+            int num1 = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Введите второе число первого комплексного числа");
+            int num2 = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Введите второе число второго комплексного числа");
+            int num3 = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Введите второе число второго комплексного числа");
+            int num4 = int.Parse(Console.ReadLine());
+
+            Console.WriteLine($"Первое комплексное число: z = {num1} + {num2}i");
+            Console.WriteLine($"Второе комплексное число: z = {num3} + {num4}i");
+          while (true) // Бесконечный цикл
+             {
+            Console.WriteLine("Выберите действие с комплексным числом:");
+            Console.WriteLine("1 - сложение");
+            Console.WriteLine("2 - вычитание");
+            Console.WriteLine("3 - умножение");
+            Console.WriteLine("4 - деление");
+            Console.WriteLine("5 - модуль");
+            Console.WriteLine("6 - арумент");
+            Console.WriteLine("q - выход из программы");
+            string chislo = Console.ReadLine();
+
+            switch (chislo)
+            {
+                case "Q":
+                    Console.WriteLine("Выход из программы...");
+                    return;
+                case "1":
+                    int sum1 = (num1 + num3);
+                    int sum2 = (num2 + num4);
+                    Console.WriteLine($"Итог сложения: z = {sum1} + {sum2}i");
+                    break;
+
+                case "2":
+                    int vch1 = (num1 - num3);
+                    int vch2 = (num2 - num4);
+                    Console.WriteLine($"Итог сложения: z = {vch1} - {vch2}i");
+                    break;
+
+                case "3":
+                    int ymn1 = (num1 * num3 - num2 * num4);
+                    int ymn2 = (num1 * num4 + num2 * num3);
+                    Console.WriteLine($"Итог сложения: z = {ymn1} - {ymn2}i");
+                    break;
+
+                case "4":
+                    int del1 = ((num1 * num3 + num2 * num4)/(num3 * num3 + num4 * num4));
+                    int del2 = ((num2 * num3 + num1 * num4) / (num3 * num3 + num4 * num4));
+                    Console.WriteLine($"Итог сложения: z = {del1} - {del2}i");
+                    break;
+
+                case "5":
+                    double mod1 = Math.Sqrt(num1 * num1 + num2 * num2);
+                    Console.WriteLine($"Итог сложения: z = {mod1}");
+                    break;
+
+                case "6":
+                    double arg = 0;
+                    if (num1 > 0) { arg = Math.Atan(num2 / num1); }
+                    else if (num1 < 0 && num2 >= 0) {  arg = Math.PI + Math.Atan(num2 / num1); }
+                    else if (num1 < 0 && num2 < 0) {  arg = -Math.PI + Math.Atan(num2 / num1); }
+                    else if (num1 == 0 && num2 > 0) {  arg = Math.PI / 2; }
+                    else if (num1 == 0 && num2 < 0) { arg = -Math.PI / 2; }
+                    Console.WriteLine($"Итог вычисления аргумента: z = {arg}");
+                    break;
+
+                default:
+                    Console.WriteLine("Неизвестная команда.");
+                    break;
+            }
+        }
+    }
+}
