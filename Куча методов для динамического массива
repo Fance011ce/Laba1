@@ -1,0 +1,318 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+public class MyArrayList<T>////////////////1
+{
+    private int size; //размер динамического массива
+    private T[] elementData;//внутренний массив
+
+    public MyArrayList()
+    {
+        elementData = new T[0];//начальный размер массива 
+        size = 0;//кол-во элементов в динамическом массиве
+    }
+
+
+    public MyArrayList(T[] a)/////////////////2
+    {
+
+        elementData = new T[a.Length];
+        for (int i = 0; i < a.Length; i++)
+        {
+            elementData[i] = a[i];
+        }
+
+        size = a.Length;
+    }
+
+
+
+
+    public MyArrayList(int capacity)/////////////3
+    {
+        T[] elementData = new T[capacity];
+    }
+
+
+
+
+    public void add(T e)////////////////4
+    {
+        if (elementData.Length < size)
+        {
+            T[] array = new T[(int)(size * 1.5) + 1];
+            for (int i = 0; i < size; i++)
+            {
+                array[i] = elementData[i];
+            }
+        }
+        {
+
+        }
+    }
+
+
+
+
+    public void addAll(T[] a)//////////////5
+    {
+        int kolobok = a.Length;
+        for (int i = 0; i < kolobok; i++)
+        {
+            add(a[i]);
+        }
+
+
+    }
+
+
+
+
+
+    public void clear()
+    { ///////////////6
+        for (int i = 0; i < size; i++)
+        {
+            elementData[i] = default(T);
+        }
+    }
+
+
+
+
+    public bool Contains(object o)///////////7
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (EqualityComparer<T>.Default.Equals(elementData[i], (T)o))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+    public bool isEmpty()////////////////9
+    {
+        return size == 0;
+    }
+
+    private void Resize(int newSize)
+    {
+        T[] newArray = new T[newSize];
+        Array.Copy(elementData, newArray, size);
+        elementData = newArray;
+    }
+
+
+
+
+    public bool Remove(T o)////////////////10
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (elementData[i].Equals(o))
+            {
+                for (int j = i; j < size - 1; j++)
+                {
+                    elementData[j] = elementData[j + 1];
+                }
+                elementData[--size] = default;
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public void RemoveAll(T[] a)///////////      11
+    {
+        int len = a.Length;
+        for (int i = 0; i < len; i++) Remove(a[i]);
+    }
+
+    public void RetainALl(T[] a)//////////      12
+    {
+        for (int i = 0; i < a.Length; i++)
+        {
+            elementData[i] = a[i];
+        }
+        size = a.Length;
+    }
+
+
+
+    public int Size()//////////// 13
+    {
+        return size;
+    }
+
+    public T[] ToArray()////////// 14
+    {
+        T[] result = new T[size];
+        Array.Copy(elementData, result, size);
+        return result;
+    }
+
+    public T[] ToArray(T[] a)/////////// 15
+    {
+        if (a == null || a.Length < size)
+        {
+            a = new T[size];
+        }
+        Array.Copy(elementData, a, size);
+        return a;
+    }
+
+
+
+
+    public void Add(int index, T e)/////////////  16
+    {
+        if (index < 0 || index > size)
+            throw new ArgumentOutOfRangeException(nameof(index), "Индекс вне диапазона.");
+
+        if (size == elementData.Length)
+        {
+            Resize(elementData.Length * 2);
+        }
+
+        for (int i = size; i > index; i--)
+        {
+            elementData[i] = elementData[i - 1];
+        }
+        elementData[index] = e;
+        size++;
+    }
+
+
+
+
+    public void AddAll(int index, T[] a)///////////  17
+    {
+        if (index < 0 || index > size)
+            throw new ArgumentOutOfRangeException(nameof(index), "Индекс вне диапазона.");
+
+        if (a == null || a.Length == 0) return;
+
+        while (size + a.Length > elementData.Length)
+        {
+            Resize(elementData.Length * 2);
+        }
+
+        for (int i = size - 1; i >= index; i--)
+        {
+            elementData[i + a.Length] = elementData[i];
+        }
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            elementData[index + i] = a[i];
+        }
+
+        size += a.Length;
+    }
+
+    public T Get(int index)///////////////   18
+    {
+        if (index < 0 || index >= size)
+            throw new ArgumentOutOfRangeException(nameof(index), "Индекс вне диапазона.");
+
+        return elementData[index];
+    }
+
+    public int IndexOf(object o)///////////   19
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (elementData[i]?.Equals(o) ?? o == null)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+
+    public int LastIndexOf(object o)/////////       20
+    {
+        for (int i = size - 1; i >= 0; i--)
+        {
+            if (elementData[i]?.Equals(o) ?? o == null)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public T Remove(int index)//////////////     21
+    {
+        if (index < 0 || index >= size)
+            throw new ArgumentOutOfRangeException(nameof(index), "Индекс вне диапазона.");
+
+        T removedElement = elementData[index];
+
+        for (int i = index; i < size - 1; i++)
+        {
+            elementData[i] = elementData[i + 1];
+        }
+
+        elementData[--size] = default;
+        return removedElement;
+    }
+
+    public void Set(int index, T e)//////////////      22
+    {
+        if (index < 0 || index >= size)
+            throw new ArgumentOutOfRangeException(nameof(index), "Индекс вне диапазона.");
+
+        elementData[index] = e;
+    }
+
+    public MyArrayList<T> SubList(int fromIndex, int toIndex)//////////////      23
+    {
+        if (fromIndex < 0 || toIndex > size || fromIndex > toIndex)
+            throw new ArgumentOutOfRangeException("Индексы вне диапазона.");
+
+        MyArrayList<T> subList = new MyArrayList<T>();
+
+        for (int i = fromIndex; i < toIndex; i++)
+        {
+            subList.add(elementData[i]);
+        }
+
+        return subList;
+    }
+    public void Print()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            Console.WriteLine(elementData[i] + " ");
+        }
+    }
+}
+public class Example
+{
+    public static void Main(string[] args)
+    {
+        int[] array = { 2, 18, -44, -1, 0, 53 };
+
+        MyArrayList<int> list = new MyArrayList<int>(array);
+        list.IndexOf(53);
+        list.Remove(1);
+        list.Print();
+
+    }
+}
+
+
+
+
+
