@@ -1,0 +1,32 @@
+using System;
+using System.IO;
+using static System.Net.Mime.MediaTypeNames;
+using System.Text.RegularExpressions;
+
+public class Program {
+    public static void Main(string[] args){
+        string FilePath = "text.txt";
+        string fileContent = File.ReadAllText(FilePath);
+
+        List<string> myList = new List<string>();
+
+        if (File.Exists(FilePath))
+        {
+            MatchCollection matches = Regex.Matches(fileContent, @"<[^>]*>");
+            foreach (Match match in matches)
+            {
+                myList.Add(match.Value);
+            }
+            {
+                
+            }
+        }
+        Console.WriteLine("Выводим все тэги");
+        foreach(string tag in myList)
+        {
+            Console.WriteLine(tag);
+        }
+
+
+        }
+}
