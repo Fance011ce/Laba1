@@ -1,0 +1,388 @@
+using System;
+using System.IO;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace task4
+{
+    public class myVector<T>
+    {
+        private T[] elementData;//массив, где все храниться
+        private int elementCount;//кол-во элементов в векторе
+        private int capacityIncrement;//кол-во элементов НА которое увеличивается (приращение емкости)
+
+        public myVector(int initialCapacity, int capacityIncrement)
+        {
+            this.elementData = new T[initialCapacity];//нулевой вектор
+            this.elementCount = 0;
+            this.capacityIncrement = capacityIncrement;
+        }
+
+
+        public myVector(int initialCapacity)
+        {
+            this.elementData = new T[initialCapacity];
+            this.capacityIncrement = 0;
+        }
+
+
+        public myVector()
+        {
+            this.elementData = new T[10];
+            this.capacityIncrement = 0;
+        }
+
+
+        public myVector(T[] a)
+        {
+
+            this.elementData = new T[a.Length];
+            Array.Copy(a, elementData, a.Length);
+            this.elementCount = a.Length;
+            this.capacityIncrement = 0;
+
+        }
+
+
+        public void Add(T e)
+        {
+            if (elementCount == elementData.Length)
+            {
+                if (capacityIncrement == 0)
+                {
+                    T[] array = new T[(int)(elementCount * 2) + 1];
+                    for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+                    elementData = array;
+                }
+                else
+                {
+                    T[] array = new T[(int)(elementCount + capacityIncrement) + 1];
+                    for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+                    elementData = array;
+                }
+            }
+            elementData[elementCount] = e;
+        }
+
+
+        public void AddAll(T[] a)
+        {
+            int n = a.Length;
+            for (int i = 0; i < n; i++)
+            {
+                Add(a[i]);
+            }
+        }
+
+        public void clear()
+        {
+            this.elementCount = 0;
+            this.elementData = new T[10];
+
+        }
+
+        public void contains(object o)
+        {
+            bool flag = false;
+            if (o is T[])
+            {
+                T target = (T)o;
+                for (int i = 0; i < elementCount; i++)
+                {
+                    if (elementData[i].Equals(target))
+                    {
+                        flag = true;
+                    }
+                }
+            }
+        }
+
+
+
+        public bool ContainsAll(T[] array)
+        {
+            bool[] b = new bool[array.Length];
+            int index = 0;
+            foreach (T item in array)
+            {
+                for (int i = 0; i < elementCount; i++)
+                {
+                    if (item.Equals(elementData[i]))
+                    {
+                        b[index] = true;
+                        if (index != b.Length) index++;
+                    }
+                }
+            }
+            foreach (bool element in b)
+            {
+                if (!element) return false;
+            }
+            return true;
+        }
+
+
+
+        public bool isEmpty()
+        {
+            if (elementCount == 0) return false;
+            else return true;
+        }
+
+
+
+
+        public void Remove(T o)
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (elementData[i].Equals(o))
+                {
+                    for (int j = i; j < elementCount - 1; j++)
+                    {
+                        elementData[j] = elementData[j + 1];
+                    }
+                    elementCount--;
+                    return;
+                }
+            }
+        }
+
+
+
+
+        public void RemoveAll(T[] a)
+        {
+            int lenght = a.Length;
+            for (int i = 0; i < lenght; i++) Remove(a[i]);
+        }
+
+
+
+        public void RetainALl(T[] a)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                elementData[i] = a[i];
+            }
+            elementCount = a.Length;
+        }
+
+
+        public int size()
+        {
+            return elementCount;
+        }
+
+
+        public void ToArray()
+        {
+            T[] array = new T[elementCount];
+            for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+        }
+
+
+
+
+
+        public void ToArray(T[] a)
+        {
+            int n = a.Length;
+            if (n <= elementCount && n > 0)
+            {
+                T[] array = new T[n + elementCount];
+                for (int i = 0; i < n; i++) array[i] = a[i];
+                for (int i = n; i < elementCount; i++) array[i] = elementData[i];
+                a = array;
+            }
+            else
+            {
+                T[] arr = new T[elementCount];
+                for (int i = 0; i < elementCount; i++) arr[i] = elementData[i];
+                a = arr;
+            }
+        }
+
+
+
+
+
+        public void Add(int index, T e)
+        {
+
+            if (elementCount == elementData.Length)
+            {
+
+                T[] array = new T[(int)(elementCount * 1.5) + 1];
+                for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+                elementData = array;
+            }
+
+            for (int i = elementCount; i > index; i--)
+            {
+                elementData[i] = elementData[i - 1];
+            }
+
+            elementData[index] = e;
+            elementCount++;
+        }
+
+
+
+
+
+        public void AddAll(int e, T[] a)
+        {
+            for (int i = 0; i < a.Length; i++) Add(i, a[i]);
+        }
+        public T Get(int index)
+        {
+            return elementData[index];
+        }
+
+
+
+
+
+
+
+        public int IndexOf(object o)
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (elementData[i].Equals(o))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+
+
+
+
+        public int LastIndexOf(object o)
+        {
+            int lastIndex = -1;
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (elementData[i].Equals(o))
+                {
+                    lastIndex = i;
+                }
+            }
+            return lastIndex;
+        }
+
+
+
+
+
+        public T Remove(int index)
+        {
+            T removedElement = elementData[index];
+            for (int i = index; i < elementCount - 1; i++)
+            {
+                elementData[i] = elementData[i + 1];
+            }
+            elementCount--;
+            return removedElement;
+        }
+
+
+
+
+
+        public void Set(int index, T e) => elementData[index] = e;
+
+
+
+
+
+
+        public T[] SubList(int fromIndex, int toIndex)
+        {
+            int length = toIndex - fromIndex;
+            T[] subArray = new T[length];
+            for (int i = 0; i < length; i++)
+            {
+                subArray[i] = elementData[fromIndex + i];
+            }
+            return subArray;
+        }
+
+
+
+
+
+        public void Print()
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                Console.WriteLine(elementData[i] + " ");
+            }
+        }
+
+
+
+        public T FirstElement()
+        {
+            return elementData[0];
+        }
+
+
+
+
+
+        public T LastElement()
+        {
+            return elementData[elementCount - 1];
+        }
+
+
+
+
+
+        public void RemoveElementAt(int pos)
+        {
+            for (int i = pos; i < elementCount - 1; i++)
+            {
+                elementData[i] = elementData[i + 1];
+            }
+            elementCount--;
+        }
+
+
+
+
+
+        public void RemoveRange(int begin, int end)
+        {
+            for (int i = begin; i < end + 1; i++)
+            {
+                RemoveElementAt(i);
+            }
+        }
+
+
+
+    }
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            int[] array = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+            myVector<int> list = new myVector<int>(array);
+            list.Add(5, 0);
+            list.IndexOf(14);
+            list.Remove(1);
+            list.RemoveRange(3, 4);
+            list.Print();
+
+        }
+    }
+}
