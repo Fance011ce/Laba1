@@ -1,0 +1,75 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Collections.Generic;
+
+
+public class MyVector<T>
+{
+    private T[] items;
+    private int count;
+
+    public MyVector()
+    {
+        items = new T[10]; 
+        count = 0;
+    }
+
+   
+    public void Add(T item)
+    {
+        
+        if (count == items.Length)
+        {
+            Array.Resize(ref items, items.Length * 2);
+        }
+
+        items[count++] = item;
+    }
+
+    public T GetItem(int index)
+    {
+        if (index < 0 || index >= count)
+        {
+            throw new IndexOutOfRangeException();
+        }
+
+        return items[index];
+    }
+
+    public int Count
+    {
+        get { return count; }
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        string filePath = "text.txt";
+        MyVector<IPAddress> vector = new MyVector<IPAddress>();
+
+        foreach (string line in File.ReadLines(filePath))
+        {
+            string[] words = line.Split(' ');
+            foreach (string word in words)
+            {
+                if (IPAddress.TryParse(word, out IPAddress ipAddress))
+                {
+                    vector.Add(ipAddress);
+                }
+            }
+        }
+
+        using (StreamWriter writer = new StreamWriter("result.txt"))
+        {
+            Console.WriteLine("Найденные IP-адреса:");
+            for (int i = 0; i < vector.Count; i++)
+            {
+                Console.WriteLine(vector.GetItem(i));
+                writer.WriteLine(vector.GetItem(i));
+            }
+        }
+    }
+}
