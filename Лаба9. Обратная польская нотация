@@ -1,0 +1,226 @@
+using System;
+using System.Collections.Generic;
+
+public class MyVector<T>
+{
+    private T[] elementData;//массив, где все храниться
+    private int elementCount;//кол-во элементов в векторе
+    private int capacityIncrement;//кол-во элементов НА которое увеличивается (приращение емкости)
+
+    public MyVector(int capacityIncrement = 0)
+    {
+        elementData = new T[16];
+        elementCount = 0;
+        this.capacityIncrement = capacityIncrement;
+    }
+
+    public void Add(T e)
+    {
+        if (elementCount == elementData.Length)
+        {
+            if (capacityIncrement == 0)
+            {
+                T[] array = new T[(int)(elementCount * 2) + 1];
+                for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+                elementData = array;
+            }
+            else
+            {
+                T[] array = new T[(int)(elementCount + capacityIncrement) + 1];
+                for (int i = 0; i < elementCount; i++) array[i] = elementData[i];
+                elementData = array;
+            }
+        }
+        elementData[elementCount++] = e;
+    }
+
+    public void Remove(int index)
+    {
+        if (index >= 0 && index < elementCount)
+        {
+            for (int j = index; j < elementCount - 1; j++)
+            {
+                elementData[j] = elementData[j + 1];
+            }
+            elementCount--;
+        }
+    }
+
+    public T Get(int index)
+    {
+        return elementData[index];
+    }
+
+    public int IndexOf(object o)
+    {
+        for (int i = 0; i < elementCount; i++)
+        {
+            if (elementData[i].Equals(o))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+public class MyStack<T> : MyVector<T>
+{
+    private int _size = -1;
+
+    public MyStack(int capacityIncrement = 0) : base(capacityIncrement)
+    {
+    }
+
+    public void Push(T item)
+    {
+        Add(item);
+        _size++;
+    }
+
+    public T Pop()
+    {
+        if (_size == -1)
+        {
+            throw new InvalidOperationException("Стек пуст.");
+        }
+        T item = Get(_size);
+        Remove(_size); 
+        _size--;
+        return item;
+    }
+
+    public bool IsEmpty()
+    {
+        return _size == -1;
+    }
+
+    public T Peek()
+    {
+        if (_size == -1)
+        {
+            throw new InvalidOperationException("Стек пуст.");
+        }
+        return Get(_size);
+    }
+
+    public int Search(T item)
+    {
+        return IndexOf(item);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+public class RPNCalculator
+{
+    private Dictionary<string, Func<double, double, double>> _operators = new Dictionary<string, Func<double, double, double>>()
+{
+    { "+", (x, y) => x + y },
+    { "-", (x, y) => x - y },
+    { "*", (x, y) => x * y },
+    { "/", (x, y) => x / y },
+    { "^", (x, y) => Math.Pow(x, y) }, 
+    { "sqrt", (x, y) => Math.Sqrt(x) }, 
+    { "mod", (x, y) => x % y }, 
+    { "div", (x, y) => Math.Floor(x / y) }, 
+    { "min", (x, y) => Math.Min(x, y) }, 
+    { "max", (x, y) => Math.Max(x, y) }, 
+};
+
+    private Dictionary<string, Func<double, double>> _unaryOperators = new Dictionary<string, Func<double, double>>()
+{
+    { "abs", x => Math.Abs(x) }, 
+    { "sign", x => Math.Sign(x) }, 
+    { "sin", x => Math.Sin(x) }, 
+    { "cos", x => Math.Cos(x) }, 
+    { "tan", x => Math.Tan(x) }, 
+    { "ln", x => Math.Log(x) }, 
+    { "log10", x => Math.Log10(x) }, 
+    { "floor", x => Math.Floor(x) }, 
+    { "exp", x => Math.Exp(x) }, 
+};
+
+    public double Calculate(string expression)
+    {
+        MyStack<double> stack = new MyStack<double>();
+
+        foreach (string token in expression.Split(' '))
+        {
+            if (double.TryParse(token, out double operand))
+            {
+                stack.Push(operand);
+            }
+            else if (_unaryOperators.ContainsKey(token)) 
+            {
+                if (stack.IsEmpty())
+                {
+                    throw new ArgumentException("Недостаточно операндов для операции " + token);
+                }
+
+                double operand1 = stack.Pop();
+                stack.Push(_unaryOperators[token](operand1));
+            }
+            else if (_operators.ContainsKey(token)) 
+            {
+                if (stack.IsEmpty())
+                {
+                    throw new ArgumentException("Недостаточно операндов для операции " + token);
+                }
+
+                double operand2 = stack.Pop();
+                if (stack.IsEmpty())
+                {
+                    throw new ArgumentException("Недостаточно операндов для операции " + token);
+                }
+
+                double operand1 = stack.Pop();
+                stack.Push(_operators[token](operand1, operand2));
+            }
+            else
+            {
+                throw new ArgumentException("Неверный токен: " + token);
+            }
+        }
+
+        if (stack.IsEmpty())
+        {
+            throw new ArgumentException("Выражение некорректно.");
+        }
+
+        return stack.Pop();
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            RPNCalculator calculator = new RPNCalculator();
+
+            Console.Write("Введите выражение в обратной польской нотации: ");
+            string expression = Console.ReadLine();
+
+            try
+            {
+                double result = calculator.Calculate(expression);
+                Console.WriteLine($"Результат: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex.Message);
+            }
+        }
+    }
+
+}
