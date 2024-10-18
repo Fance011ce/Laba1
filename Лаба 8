@@ -1,0 +1,145 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Collections.Generic;
+
+public class MyVector<T>
+{
+    private T[] elementData;
+    public int count;
+
+    public MyVector()
+    {
+        elementData = new T[10];
+        count = 0;
+    }
+
+    public void Add(T item)
+    {
+        if (count == elementData.Length)
+        {
+            Array.Resize(ref elementData, elementData.Length * 2);
+        }
+
+        elementData[count++] = item;
+    }
+
+    public T GetItem(int index)
+    {
+        if (index < 0 || index >= count)
+        {
+            throw new IndexOutOfRangeException();
+        }
+
+        return elementData[index];
+    }
+
+    public int Count
+    {
+        get { return count; }
+    }
+}
+
+
+public class MyStack<T> : MyVector<T>
+{
+
+    public void Push(T item)
+    {
+        Add(item);
+    }
+
+    public T Pop()
+    {
+        if (Count == 0)
+        {
+            throw new InvalidOperationException("Стек пуст.");
+        }
+
+        T topItem = GetItem(Count - 1);
+        count--;
+        return topItem;
+    }
+
+    public T Peek()
+    {
+        if (Count == 0)
+        {
+            throw new InvalidOperationException("Стек пуст.");
+        }
+
+        return GetItem(Count - 1);
+    }
+
+
+
+
+    public bool Empty()
+    {
+        return Count == 0;
+    }
+
+
+
+
+    public int Search(T item)
+    {
+        for (int i = Count - 1; i >= 0; i--)
+        {
+            if (GetItem(i).Equals(item))
+            {
+                return Count - i;
+            }
+        }
+        return -1;
+    }
+
+}
+  
+   
+
+
+
+
+public class Example
+{
+    public static void Main(string[] args)
+    {
+
+        MyStack<int> stack = new MyStack<int>();
+
+        Console.WriteLine("Метод Push");
+        stack.Push(1);
+        stack.Push(2);
+        stack.Push(3);
+        Console.WriteLine($"Итог: {stack.Peek()}");
+        Console.WriteLine();
+
+        Console.WriteLine("Метод Pop");
+        Console.WriteLine($"Итог: {stack.Pop()}"); 
+        Console.WriteLine();
+
+        Console.WriteLine("Метод Peek");
+        Console.WriteLine($"Итог: {stack.Peek()}"); 
+        Console.WriteLine();
+
+        Console.WriteLine("Метод Empty:");
+        Console.WriteLine($"Итог: {stack.Empty()}"); 
+        Console.WriteLine();
+
+        Console.WriteLine("Удалим оставшиеся элементы, для проверки Empty");
+        stack.Pop();
+        Console.WriteLine($"Итог: {stack.Pop()}");
+
+        Console.WriteLine($"Проверка на пустоту: {stack.Empty()}"); 
+        Console.WriteLine();
+
+        Console.WriteLine("Метод Search:");
+        stack.Push(1);
+        stack.Push(2);
+        stack.Push(3);
+        Console.WriteLine($"Итог: {stack.Search(2)}"); 
+        Console.WriteLine($"Итог: {stack.Search(4)}"); 
+
+    }
+}
