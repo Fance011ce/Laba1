@@ -1,0 +1,155 @@
+using System;
+
+public class Heap<T> where T : IComparable<T>
+{
+    private T[] _heap;
+    private int _size;
+    private bool _isMaxHeap; 
+
+    public Heap(T[] array, bool isMaxHeap = true)
+    {
+        _heap = array;
+        _size = array.Length;
+        _isMaxHeap = isMaxHeap;
+        BuildHeap();
+    }
+
+    public T FindMaxMin()
+    {
+        if (_size == 0)
+            throw new InvalidOperationException("Куча пуста.");
+
+        return _heap[0];
+    }
+
+    public T RemoveMaxMin()
+    {
+        if (_size == 0)
+            throw new InvalidOperationException("Куча пуста.");
+
+        T maxMin = _heap[0];
+        _heap[0] = _heap[_size - 1];
+        _size--;
+        HeapifyDown(0);
+        return maxMin;
+    }
+
+    public void IncreaseDecreaseKey(int index, T newValue)
+    {
+        if (index < 0 || index >= _size)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        if (_isMaxHeap && _heap[index].CompareTo(newValue) <= 0 ||
+            !_isMaxHeap && _heap[index].CompareTo(newValue) >= 0)
+            throw new ArgumentException("Новое значение должно быть больше (max-heap) или меньше (min-heap) текущего.");
+
+        _heap[index] = newValue;
+        if (_isMaxHeap)
+            HeapifyUp(index);
+        else
+            HeapifyDown(index);
+    }
+    public void Add(T value)
+    {
+        if (_size == _heap.Length)
+            ResizeHeap();
+
+        _heap[_size] = value;
+        _size++;
+        if (_isMaxHeap)
+            HeapifyUp(_size - 1);
+        else
+            HeapifyDown(_size - 1);
+    }
+
+
+
+    public Heap<T> Merge(Heap<T> otherHeap)
+    {
+        if (_isMaxHeap != otherHeap._isMaxHeap)
+            throw new ArgumentException("Кучи должны быть одного типа (max или min).");
+
+        T[] mergedArray = new T[_size + otherHeap._size];
+        Array.Copy(_heap, 0, mergedArray, 0, _size);
+        Array.Copy(otherHeap._heap, 0, mergedArray, _size, otherHeap._size);
+        return new Heap<T>(mergedArray, _isMaxHeap);
+    }
+    private void HeapifyUp(int index)
+    {
+        while (index > 0 && Compare(_heap[index], _heap[Parent(index)]) > 0)
+        {
+            Swap(index, Parent(index));
+            index = Parent(index);
+        }
+    }
+
+    private void HeapifyDown(int index)
+    {
+        while (LeftChild(index) < _size)
+        {
+            int target = LeftChild(index);
+            if (RightChild(index) < _size && Compare(_heap[RightChild(index)], _heap[target]) > 0)
+                target = RightChild(index);
+
+            if (Compare(_heap[index], _heap[target]) >= 0)
+                break;
+
+            Swap(index, target);
+            index = target;
+        }
+    }
+
+    private void BuildHeap()
+    {
+        for (int i = (_size / 2) - 1; i >= 0; i--)
+        {
+            HeapifyDown(i);
+        }
+    }
+
+    private int Parent(int index)
+    {
+        return (index - 1) / 2;
+    }
+
+    private int LeftChild(int index)
+    {
+        return (index * 2) + 1;
+    }
+
+    private int RightChild(int index)
+    {
+        return (index * 2) + 2;
+    }
+
+    private void Swap(int i, int j)
+    {
+        T temp = _heap[i];
+        _heap[i] = _heap[j];
+        _heap[j] = temp;
+    }
+
+    private int Compare(T a, T b)
+    {
+        return _isMaxHeap ? a.CompareTo(b) : b.CompareTo(a);
+    }
+
+    private void ResizeHeap()
+    {
+        Array.Resize(ref _heap, _heap.Length * 2); 
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        int[] array = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        Heap<int> maxHeap = new Heap<int>(array);
+
+        Console.WriteLine($"Максимальный элемент: {maxHeap.FindMaxMin()}");
+
+        int max = maxHeap.RemoveMaxMin();
+        Console.WriteLine($"Удаленный элемент: {max}");
+
+    }
+}
