@@ -1,0 +1,101 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+public class PriorityQueue
+{
+    public class Request
+    {
+        public int Priority { get; set; }
+        public int RequestNumber { get; set; }
+        public int StepNumber { get; set; }
+        public int WaitTime { get; set; }
+
+        public Request(int priority, int requestNumber, int stepNumber)
+        {
+            Priority = priority;
+            RequestNumber = requestNumber;
+            StepNumber = stepNumber;
+            WaitTime = 0;
+        }
+    }
+
+    private List<Request> queue = new List<Request>();
+    private int nextRequestNumber = 1;
+    private int maxWaitTime = 0;
+    private Request longestWaitingRequest = null;
+
+    public void AddRequests(int stepNumber)
+    {
+        Random random = new Random();
+        int numberOfRequests = random.Next(1, 11);
+
+        for (int i = 0; i < numberOfRequests; i++)
+        {
+            int priority = random.Next(1, 6);
+            Request request = new Request(priority, nextRequestNumber++, stepNumber);
+            queue.Add(request);
+            LogAction("ADD", request);
+        }
+    }
+
+    public void ProcessRequests()
+    {
+        while (queue.Count > 0)
+        {
+            Request highestPriorityRequest = queue.OrderByDescending(r => r.Priority).First();
+            queue.Remove(highestPriorityRequest);
+            LogAction("REMOVE", highestPriorityRequest);
+
+            foreach (Request request in queue)
+            {
+                request.WaitTime++;
+                if (request.WaitTime > maxWaitTime)
+                {
+                    maxWaitTime = request.WaitTime;
+                    longestWaitingRequest = request;
+                }
+            }
+        }
+    }
+
+    public void PrintLongestWaitingRequest()
+    {
+        if (longestWaitingRequest != null)
+        {
+            Console.WriteLine("Заявка с максимальным временем ожидания:");
+            Console.WriteLine($"Номер заявки: {longestWaitingRequest.RequestNumber}");
+            Console.WriteLine($"Приоритет: {longestWaitingRequest.Priority}");
+            Console.WriteLine($"Номер шага: {longestWaitingRequest.StepNumber}");
+        }
+        else
+        {
+            Console.WriteLine("Заявки не были обработаны.");
+        }
+    }
+
+    private void LogAction(string action, Request request)
+    {
+        using (StreamWriter writer = new StreamWriter("log.txt", true))
+        {
+            writer.WriteLine($"{action} {request.RequestNumber} {request.Priority} {request.StepNumber}");
+        }
+    }
+
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("Введите количество шагов добавления заявок:");
+        int n = int.Parse(Console.ReadLine());
+
+        PriorityQueue priorityQueue = new PriorityQueue();
+
+        for (int i = 1; i <= n; i++)
+        {
+            priorityQueue.AddRequests(i);
+            priorityQueue.ProcessRequests();
+        }
+
+        priorityQueue.PrintLongestWaitingRequest();
+    }
+}
