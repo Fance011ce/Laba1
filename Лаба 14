@@ -32,25 +32,25 @@ namespace Program
             head = 0;
             tail = numElements;
         }
-        public void Add(T e) //доб. конец
+        public void Add(T e) // доб. конец
         {
             if (tail == elements.Length)
             {
                 T[] array = new T[(tail * 2) + 1];
-                for (int i = 0; i < tail; i++) array[i] = elements[i];
+                for (int i = 0; i < tail; i++)
+                {
+                    array[i] = elements[i];
+                }
                 elements = array;
-                elements[tail++] = e;
             }
-            else
-            {
-                elements[tail++] = e;
-            }
+            elements[tail++] = e;
         }
+
         public void AddAll(T[] a) //доб.
         {
             for (int i = 0; i < a.Length; i++) Add(a[i]);
         }
-        public void Clear(T e) //чистка
+        public void Clear() //чистка
         {
             tail = 0;
         }
@@ -300,11 +300,13 @@ namespace Program
     {
         public static void Main(string[] args)
         {
-            int[] array = { 1, 2, 4, 7, 1, 8, 6 };
+            int[] array = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             MyArrayDeque<int> list = new MyArrayDeque<int>(array);
             list.Add(2);
             list.Print();
-            list.Remove(2);
+            list.Add(1);
+            list.Add(2);
+            list.Add(3);
             list.Print();
         }
     }
