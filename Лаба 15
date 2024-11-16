@@ -1,0 +1,167 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+public class MyArrayDeque<T>
+{
+    private T[] items;
+    private int head;
+    private int tail;
+    private int size;
+
+    public MyArrayDeque()
+    {
+        items = new T[8];
+        head = 0;
+        tail = 0;
+        size = 0;
+    }
+
+    public void EnqueueFront(T item)
+    {
+        if (size == items.Length)
+        {
+            Resize(items.Length * 2);
+        }
+
+        head = (head - 1 + items.Length) % items.Length;
+        items[head] = item;
+        size++;
+    }
+
+    public void EnqueueBack(T item)
+    {
+        if (size == items.Length)
+        {
+            Resize(items.Length * 2);
+        }
+
+        items[tail] = item;
+        tail = (tail + 1) % items.Length;
+        size++;
+    }
+
+    public T DequeueFront()
+    {
+        if (size == 0)
+        {
+            throw new InvalidOperationException("Пусто");
+        }
+
+        T item = items[head];
+        head = (head + 1) % items.Length;
+        size--;
+        return item;
+    }
+
+    public T DequeueBack()
+    {
+        if (size == 0)
+        {
+            throw new InvalidOperationException("Пусто");
+        }
+
+        tail = (tail - 1 + items.Length) % items.Length;
+        T item = items[tail];
+        size--;
+        return item;
+    }
+
+    public int Count => size;
+
+    private void Resize(int newCapacity)
+    {
+        T[] newItems = new T[newCapacity];
+        int index = 0;
+
+        for (int i = head; i != tail; i = (i + 1) % items.Length)
+        {
+            newItems[index++] = items[i];
+        }
+
+        items = newItems;
+        head = 0;
+        tail = index;
+    }
+}
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        string[] lines = File.ReadAllLines("input.txt");
+
+        MyArrayDeque<string> deque = new MyArrayDeque<string>();
+
+        if (lines.Length > 0)
+        {
+            int digitsInFirstLine = CountDigits(lines[0]);
+
+            foreach (string line in lines)
+            {
+                int digitsInLine = CountDigits(line);
+                if (digitsInLine > digitsInFirstLine)
+                {
+                    deque.EnqueueBack(line);
+                }
+                else
+                {
+                    deque.EnqueueFront(line);
+                }
+            }
+        }
+
+        Console.Write("Введите количество пробелов: ");
+        int n = int.Parse(Console.ReadLine());
+
+        var linesToWrite = new List<string>();
+
+        while (deque.Count > 0)
+        {
+            string line = deque.DequeueFront();
+            if (CountSpaces(line) <= n)
+            {
+                linesToWrite.Add(line); 
+            }
+        }
+
+        using (StreamWriter writer = new StreamWriter("sorted.txt"))
+        {
+            foreach (var line in linesToWrite)
+            {
+                writer.WriteLine(line);
+            }
+        }
+
+        foreach (var line in linesToWrite)
+        {
+            Console.WriteLine(line);
+        }
+    }
+
+    static int CountDigits(string str)
+    {
+        int count = 0;
+        foreach (char c in str)
+        {
+            if (char.IsDigit(c))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    static int CountSpaces(string str)
+    {
+        int count = 0;
+        foreach (char c in str)
+        {
+            if (c == ' ')
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+}
