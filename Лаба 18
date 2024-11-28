@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace TagCounter
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string[] lines = File.ReadAllLines("input.txt");
+
+            Dictionary<string, int> tagCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            // Регулярное выражение для поиска тегов
+            Regex tagRegex = new Regex(@"<\s*\/?\s*(?<tag>[A-Za-z][A-Za-z0-9]*)\s*.*?>");
+
+            foreach (string line in lines)
+            {
+                MatchCollection matches = tagRegex.Matches(line);
+
+                foreach (Match match in matches)
+                {
+                    string tag = match.Groups["tag"].Value;
+
+                    // Считаем тег без учета символа "/"
+                    if (!tagCounts.ContainsKey(tag))
+                    {
+                        tagCounts[tag] = 0;
+                    }
+                    tagCounts[tag]++;
+                }
+            }
+
+            // Вывод результатов
+            foreach (KeyValuePair<string, int> kvp in tagCounts)
+            {
+                Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            }
+        }
+    }
+}
