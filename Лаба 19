@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+public class MyHashMap
+{
+    private class Node
+    {
+        public string Key;
+        public int Value;
+        public Node Next;
+
+        public Node(string key, int value)
+        {
+            Key = key;
+            Value = value;
+            Next = null;
+        }
+    }
+
+    private Node[] buckets;
+    private const int Size = 100; 
+
+    public MyHashMap()
+    {
+        buckets = new Node[Size];
+    }
+
+    private int GetBucketIndex(string key)
+    {
+        return Math.Abs(key.GetHashCode()) % Size;
+    }
+
+    public void Put(string key)
+    {
+        int index = GetBucketIndex(key);
+        Node current = buckets[index];
+
+        while (current != null)
+        {
+            if (current.Key.Equals(key, StringComparison.OrdinalIgnoreCase))
+            {
+                current.Value++;
+                return;
+            }
+            current = current.Next;
+        }
+
+        Node newNode = new Node(key, 1);
+        newNode.Next = buckets[index];
+        buckets[index] = newNode;
+    }
+
+    public int Get(string key)
+    {
+        int index = GetBucketIndex(key);
+        Node current = buckets[index];
+
+        while (current != null)
+        {
+            if (current.Key.Equals(key, StringComparison.OrdinalIgnoreCase))
+            {
+                return current.Value;
+            }
+            current = current.Next;
+        }
+        return 0; 
+    }
+
+    public Dictionary<string, int> ToDictionary()
+    {
+        var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var bucket in buckets)
+        {
+            var current = bucket;
+            while (current != null)
+            {
+                result[current.Key] = current.Value;
+                current = current.Next;
+            }
+        }
+
+        return result;
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        MyHashMap tagMap = new MyHashMap();
+        string pattern = @"<s*/?s*([a-zA-Z][a-zA-Z0-9]*)s*>"; 
+
+        try
+        {
+            using (StreamReader sr = new StreamReader("input.txt"))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    MatchCollection matches = Regex.Matches(line, pattern);
+                    foreach (Match match in matches)
+                    {
+                        string tag = match.Groups[1].Value; 
+                        tagMap.Put(tag); 
+                    }
+                }
+            }
+
+            
+            var result = tagMap.ToDictionary();
+            foreach (var kvp in result)
+            {
+                Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Ошибка: {e.Message}");
+        }
+    }
+}
