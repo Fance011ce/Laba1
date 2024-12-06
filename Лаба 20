@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+
+enum VariableType
+{
+    Int,
+    Float,
+    Double
+}
+
+class VariableDefinition {
+
+    public VariableType Type { get; set; }
+    public string Value { get; set; }
+}
+
+class MyHashMap {
+
+    private const int Size = 100;
+    private LinkedList<KeyValuePair<string, VariableDefinition>>[] table;
+
+    public MyHashMap()
+    {
+        table = new LinkedList<KeyValuePair<string, VariableDefinition>>[Size];
+        for (int i = 0; i < Size; i++)
+            table[i] = new LinkedList<KeyValuePair<string, VariableDefinition>>();
+    }
+
+    private int GetHash(string key)
+    {
+        return Math.Abs(key.GetHashCode()) % Size;
+    }
+
+    public bool Add(string key, VariableDefinition value)
+    {
+        int hash = GetHash(key);
+        foreach (var pair in table[hash])
+        {
+            if (pair.Key == key)
+            {
+                return false;
+            }
+        }
+        table[hash].AddFirst(new KeyValuePair<string, VariableDefinition>(key, value));
+        return true;
+    }
+
+    public IEnumerable<KeyValuePair<string, VariableDefinition>> GetAll()
+    {
+        foreach (var bucket in table)
+        {
+            foreach (var pair in bucket)
+            {
+                yield return pair;
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        string filePath = "input.txt";
+        string outputPath = "output.txt";
+        var variableMap = new MyHashMap();
+        var incorrectDefinitions = new List<string>();
+        var regex = new Regex(@"^\s*(int|float|double)\s+(\w+)\s*=\s*(\d+)\s*;\s*$");
+
+        string[] lines = File.ReadAllLines(filePath);
+        foreach (var line in lines)
+        {
+            Match match = regex.Match(line);
+            if (match.Success)
+            {
+                VariableType type = (VariableType)Enum.Parse(typeof(VariableType), match.Groups[1].Value, true);
+                string variableName = match.Groups[2].Value;
+                string value = match.Groups[3].Value;
+
+                if (!variableMap.Add(variableName, new VariableDefinition { Type = type, Value = value }))
+                {
+                    incorrectDefinitions.Add($"Переопределение переменной: {variableName}");
+                }
+            }
+            else
+            {
+                incorrectDefinitions.Add($"Некорректное определение: {line.Trim()}");
+            }
+        }
+
+        using (var writer = new StreamWriter(outputPath))
+        {
+            foreach (var pair in variableMap.GetAll())
+            {
+                writer.WriteLine($"{pair.Value.Type} => {pair.Key}({pair.Value.Value})");
+            }
+
+            if (incorrectDefinitions.Count > 0)
+            {
+                writer.WriteLine("Некорректные определения:");
+                foreach (var definition in incorrectDefinitions)
+                {
+                    writer.WriteLine(definition);
+                }
+            }
+        }
+
+        Console.WriteLine("Обработка завершена. Результаты записаны в файл output.txt.");
+    }
+}
